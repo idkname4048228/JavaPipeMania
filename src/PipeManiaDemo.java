@@ -1,3 +1,4 @@
+import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -51,6 +52,15 @@ public class PipeManiaDemo extends JFrame {
 		gbc_GameMapPanel.gridx = 0;
 		gbc_GameMapPanel.gridy = 0;
 		contentPane.add(GameMapPanel, gbc_GameMapPanel);
+		GameMapPanel.setLayout(new CardLayout(0, 0));
+
+		JPanel GameMap1 = new JPanel();
+		GameMapPanel.add(GameMap1, "name_937573585471600");
+		GameMap1.setLayout(null);
+
+		JPanel GameMap2 = new JPanel();
+		GameMapPanel.add(GameMap2, "name_937573591616900");
+		GameMap2.setLayout(null);
 
 		JPanel OperatePanel = new JPanel();
 		GridBagConstraints gbc_OperatePanel = new GridBagConstraints();
