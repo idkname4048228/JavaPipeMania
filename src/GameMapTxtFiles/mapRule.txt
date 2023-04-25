@@ -1,0 +1,8 @@
+1, 2, 3, 4 for pipe direction 0, 90, 180, 270
+
+s for straight
+b for bent
+c for cross
+
+c1 for cross pipe with 0 degree
+
