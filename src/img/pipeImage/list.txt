@@ -1,0 +1,37 @@
+"./img/pipeImage/bentPipe.png"
+"./img/pipeImage/bentPipeWithWater.png"
+"./img/pipeImage/crossPipe.png"
+"./img/pipeImage/crossPipeWithOneWater.png"
+"./img/pipeImage/crossPipeWithTwoWater.png"
+"./img/pipeImage/downInWaterStore.png"
+"./img/pipeImage/downInWaterStoreWithWater.png"
+"./img/pipeImage/leftInWaterStore.png"
+"./img/pipeImage/leftInWaterStoreWithWater.png"
+"./img/pipeImage/rightInWaterStore.png"
+"./img/pipeImage/rightInWaterStoreWithWater.png"
+"./img/pipeImage/straightPipe.png"
+"./img/pipeImage/straightPipeWithWater.png"
+"./img/pipeImage/tPipe.png"
+"./img/pipeImage/tPipeWithWater.png"
+"./img/pipeImage/upInWaterStore.png"
+"./img/pipeImage/upInWaterStoreWithWater.png"
+
+
+
+ImageIcon bentPipe = scaledIcon("./img/pipeImage/bentPipe.png", elementWidth, elementHeight);
+ImageIcon bentPipeWithWater = scaledIcon("./img/pipeImage/bentPipeWithWater.png", elementWidth, elementHeight);
+ImageIcon crossPipe = scaledIcon("./img/pipeImage/crossPipe.png", elementWidth, elementHeight);
+ImageIcon crossPipeWithOneWater = scaledIcon("./img/pipeImage/crossPipeWithOneWater.png", elementWidth, elementHeight);
+ImageIcon crossPipeWithTwoWater = scaledIcon("./img/pipeImage/crossPipeWithTwoWater.png", elementWidth, elementHeight);
+ImageIcon downInWaterStore = scaledIcon("./img/pipeImage/downInWaterStore.png", elementWidth, elementHeight);
+ImageIcon downInWaterStoreWithWater = scaledIcon("./img/pipeImage/downInWaterStoreWithWater.png", elementWidth, elementHeight);
+ImageIcon leftInWaterStore = scaledIcon("./img/pipeImage/leftInWaterStore.png", elementWidth, elementHeight);
+ImageIcon leftInWaterStoreWithWater = scaledIcon("./img/pipeImage/leftInWaterStoreWithWater.png", elementWidth, elementHeight);
+ImageIcon rightInWaterStore = scaledIcon("./img/pipeImage/rightInWaterStore.png", elementWidth, elementHeight);
+ImageIcon rightInWaterStoreWithWater = scaledIcon("./img/pipeImage/rightInWaterStoreWithWater.png", elementWidth, elementHeight);
+ImageIcon straightPipe = scaledIcon("./img/pipeImage/straightPipe.png", elementWidth, elementHeight);
+ImageIcon straightPipeWithWater = scaledIcon("./img/pipeImage/straightPipeWithWater.png", elementWidth, elementHeight);
+ImageIcon tPipe = scaledIcon("./img/pipeImage/tPipe.png", elementWidth, elementHeight);
+ImageIcon tPipeWithWater = scaledIcon("./img/pipeImage/tPipeWithWater.png", elementWidth, elementHeight);
+ImageIcon upInWaterStore = scaledIcon("./img/pipeImage/upInWaterStore.png", elementWidth, elementHeight);
+ImageIcon upInWaterStoreWithWater = scaledIcon("./img/pipeImage/upInWaterStoreWithWater.png", elementWidth, elementHeight);

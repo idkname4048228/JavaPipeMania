@@ -3,6 +3,8 @@
 s for straight
 b for bent
 c for cross
+W for start of water
+w for end of water
 
 c1 for cross pipe with 0 degree
 
