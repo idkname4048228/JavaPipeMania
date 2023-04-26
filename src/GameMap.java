@@ -1,13 +1,5 @@
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class GameMap {
 	ArrayList<ArrayList<String>> currentMap = null;
@@ -34,6 +26,7 @@ public class GameMap {
 
 	GameMap(ArrayList<ArrayList<String>> map) {
 		this.init(map);
+
 	}
 
 	protected void init(ArrayList<ArrayList<String>> map) {
@@ -59,91 +52,29 @@ public class GameMap {
 		}
 	}
 
-	private ImageIcon scaledIcon(String imagePath, int width, int height) {
-		BufferedImage originalImage = null;
-		try {
-			originalImage = ImageIO.read(getClass().getResourceAsStream(imagePath));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	protected int getUnitCode(int row, int col) {
+		switch (currentMap.get(row).get(col).charAt(0)) {
+		case 's':
+			return 0;
+		case 'b':
+			return 1;
+		case 't':
+			return 2;
+		case 'c':
+			return 3;
+		case 'W':
+			return 12 + getUnitAngle(row, col);
+		case 'w':
+			return 3 + getUnitAngle(row, col);
+		default:
+			return -1;
 		}
-
-		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-		Graphics2D g2d = resizedImage.createGraphics();
-		g2d.drawImage(originalImage, 0, 0, width, height, null);
-		g2d.dispose();
-
-		return new ImageIcon(resizedImage);
 	}
 
-	protected void create(JPanel gameMapPanel, GameMap map) {
-		gameMapPanel.removeAll();
-		gameMapPanel.revalidate();
-		int elementWidth = gameMapPanel.getWidth() / map.getWidth();
-		int elementHeight = gameMapPanel.getHeight() / map.getHeight();
-
-		ImageIcon bentPipe = scaledIcon("./img/pipeImage/bentPipe.png", elementWidth, elementHeight);
-		ImageIcon bentPipeWithWater = scaledIcon("./img/pipeImage/bentPipeWithWater.png", elementWidth, elementHeight);
-		ImageIcon crossPipe = scaledIcon("./img/pipeImage/crossPipe.png", elementWidth, elementHeight);
-		ImageIcon crossPipeWithOneWater = scaledIcon("./img/pipeImage/crossPipeWithOneWater.png", elementWidth,
-				elementHeight);
-		ImageIcon crossPipeWithTwoWater = scaledIcon("./img/pipeImage/crossPipeWithTwoWater.png", elementWidth,
-				elementHeight);
-		ImageIcon downInWaterStore = scaledIcon("./img/pipeImage/downInWaterStore.png", elementWidth, elementHeight);
-		ImageIcon downInWaterStoreWithWater = scaledIcon("./img/pipeImage/downInWaterStoreWithWater.png", elementWidth,
-				elementHeight);
-		ImageIcon leftInWaterStore = scaledIcon("./img/pipeImage/leftInWaterStore.png", elementWidth, elementHeight);
-		ImageIcon leftInWaterStoreWithWater = scaledIcon("./img/pipeImage/leftInWaterStoreWithWater.png", elementWidth,
-				elementHeight);
-		ImageIcon rightInWaterStore = scaledIcon("./img/pipeImage/rightInWaterStore.png", elementWidth, elementHeight);
-		ImageIcon rightInWaterStoreWithWater = scaledIcon("./img/pipeImage/rightInWaterStoreWithWater.png",
-				elementWidth, elementHeight);
-		ImageIcon straightPipe = scaledIcon("./img/pipeImage/straightPipe.png", elementWidth, elementHeight);
-		ImageIcon straightPipeWithWater = scaledIcon("./img/pipeImage/straightPipeWithWater.png", elementWidth,
-				elementHeight);
-		ImageIcon tPipe = scaledIcon("./img/pipeImage/tPipe.png", elementWidth, elementHeight);
-		ImageIcon tPipeWithWater = scaledIcon("./img/pipeImage/tPipeWithWater.png", elementWidth, elementHeight);
-		ImageIcon upInWaterStore = scaledIcon("./img/pipeImage/upInWaterStore.png", elementWidth, elementHeight);
-		ImageIcon upInWaterStoreWithWater = scaledIcon("./img/pipeImage/upInWaterStoreWithWater.png", elementWidth,
-				elementHeight);
-
-		for (int row = 0; row < map.getHeight(); row++) {
-			for (int col = 0; col < map.getWidth(); col++) {
-				JLabel element = new JLabel();
-				element.setBounds(elementWidth * col, elementHeight * row, elementWidth, elementHeight);
-				gameMapPanel.add(element);
-				switch (map.getUnitNum(row, col)) {
-				case 0:
-					element.setIcon(pathIcon);
-					break;
-				case 1:
-					element.setIcon(wallIcon);
-					break;
-				case 2:
-					element.setIcon(roleIcon);
-					break;
-				case 3:
-					element.setIcon(boxIcon);
-					break;
-				case 4:
-					element.setIcon(finishIcon);
-					break;
-				case 5:
-					element.setIcon(button1Icon);
-					break;
-				case 6:
-					element.setIcon(door1Icon);
-					break;
-				case 7:
-					element.setIcon(button2Icon);
-					break;
-				case 8:
-					element.setIcon(door2Icon);
-					break;
-				}
-			}
-		}
+	protected int getUnitAngle(int row, int col) {
+		if (currentMap.get(row).get(col).charAt(1) == '-')
+			return -1;
+		return currentMap.get(row).get(col).charAt(1) - '0';
 	}
 
 }
