@@ -110,7 +110,6 @@ public class PipeManiaDemo extends JFrame {
 		lastRoundButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		lastRoundButton.setBounds(10, 450, 150, 70);
 		OperatePanel.add(lastRoundButton);
-
 		JButton nextRoundButton = new JButton("下一關");
 		nextRoundButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		nextRoundButton.setBounds(164, 450, 150, 70);
@@ -131,6 +130,24 @@ public class PipeManiaDemo extends JFrame {
 		restrartButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		restrartButton.setBounds(164, 370, 150, 70);
 		OperatePanel.add(restrartButton);
+
+		JLabel stepsLabel = new JLabel("--/--");
+		stepsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		stepsLabel.setFont(new Font("微軟正黑體", Font.BOLD, 24));
+		stepsLabel.setBounds(10, 180, 304, 50);
+		OperatePanel.add(stepsLabel);
+
+		JLabel currentDirectionTip = new JLabel("當前選擇旋轉方向：");
+		currentDirectionTip.setVerticalAlignment(SwingConstants.TOP);
+		currentDirectionTip.setFont(new Font("微軟正黑體", Font.BOLD, 24));
+		currentDirectionTip.setBounds(10, 240, 304, 50);
+		OperatePanel.add(currentDirectionTip);
+
+		JLabel currentDirectionLabel = new JLabel("向右旋轉");
+		currentDirectionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		currentDirectionLabel.setFont(new Font("微軟正黑體", Font.BOLD, 24));
+		currentDirectionLabel.setBounds(10, 270, 304, 70);
+		OperatePanel.add(currentDirectionLabel);
 
 		leftRotateButton.addActionListener(new ActionListener() {
 			@Override
