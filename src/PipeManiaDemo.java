@@ -101,10 +101,10 @@ public class PipeManiaDemo extends JFrame {
 		leftRotateButton.setBounds(10, 30, 150, 70);
 		OperatePanel.add(leftRotateButton);
 
-		JButton righttRotateButton = new JButton("向右旋轉");
-		righttRotateButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		righttRotateButton.setBounds(164, 30, 150, 70);
-		OperatePanel.add(righttRotateButton);
+		JButton rightRotateButton = new JButton("向右旋轉");
+		rightRotateButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
+		rightRotateButton.setBounds(164, 30, 150, 70);
+		OperatePanel.add(rightRotateButton);
 
 		JButton lastRoundButton = new JButton("上一關");
 		lastRoundButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
@@ -152,24 +152,33 @@ public class PipeManiaDemo extends JFrame {
 		leftRotateButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				currentDirectionLabel.setText("向左旋轉");
+				game.rotateRight = false;
 			}
 		});
 
-		righttRotateButton.addActionListener(new ActionListener() {
+		rightRotateButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				currentDirectionLabel.setText("向右旋轉");
+				game.rotateRight = true;
 			}
 		});
 
 		checkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				game.check(game_maps.get(game_map_index));
+				checkButton.setEnabled(false);
 			}
 		});
 
 		restrartButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				map.init(game.getCurrentMap());
+				game.create(game_maps.get(game_map_index), map);
+				checkButton.setEnabled(true);
 			}
 		});
 
@@ -183,6 +192,7 @@ public class PipeManiaDemo extends JFrame {
 
 				lastRoundButton.setEnabled(!(game_map_index == 0));
 				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
+				checkButton.setEnabled(true);
 
 				map.init(game.getCurrentMap());
 				game.create(GameMap1, map);
@@ -199,6 +209,7 @@ public class PipeManiaDemo extends JFrame {
 
 				lastRoundButton.setEnabled(!(game_map_index == 0));
 				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
+				checkButton.setEnabled(true);
 
 				map.init(game.getCurrentMap());
 				game.create(GameMap2, map);

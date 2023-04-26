@@ -1,6 +1,11 @@
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,6 +19,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class Game {
 
@@ -23,6 +29,7 @@ public class Game {
 	GameMap map = null;
 	int nowMapIndex = 0;
 	protected boolean rotateRight = true;
+	boolean playerWin = false;
 
 	Game() {
 		mapStorage = readMapFile();
@@ -104,6 +111,127 @@ public class Game {
 		currentMap = mapStorage.get(nowMapIndex);
 	}
 
+	boolean checkEnd(ArrayList<int[]> endPipes, ArrayList<ArrayList<Boolean>> waterMap) {
+		boolean win = true;
+		for (int i = 0; i < endPipes.size(); i++) {
+			int pipeRow = endPipes.get(i)[0];
+			int pipeCol = endPipes.get(i)[1];
+			win &= waterMap.get(pipeRow).get(pipeCol);
+			if (!win)
+				return false;
+
+		}
+		return true;
+	}
+
+	void check(JPanel gameMapPanel) {
+		final boolean[] noWasteWater = { true }; // 使用陣列將 noWasteWater 變成 effectively final 變數
+
+		final int colMax = map.getWidth();
+		final int rowMax = map.getHeight();
+
+		final int[] controller = { 0 }; // 使用陣列將 controller 變成 effectively final 變數
+
+		ArrayList<ArrayList<Boolean>> waterMap = new ArrayList<>();
+		for (int i = 0; i < rowMax; i++) {
+			ArrayList<Boolean> tmp = new ArrayList<>();
+			for (int j = 0; j < colMax; j++) {
+				tmp.add(false);
+			}
+			waterMap.add(tmp);
+		}
+
+		final ArrayList<int[]> waterPipes = new ArrayList<>(map.getStartPipe()); // 使用 ArrayList 初始化 waterPipes 變數
+		final ArrayList<int[]> endPipes = map.getEndPipe();
+
+		Timer timer = null;
+		timer = new Timer(500, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<int[]> tmpPipe = new ArrayList<>();
+				for (int i = 0; i < waterPipes.size(); i++) {
+					int pipeRow = waterPipes.get(i)[0];
+					int pipeCol = waterPipes.get(i)[1];
+
+					waterMap.get(pipeRow).set(pipeCol, true);
+					changeImage(gameMapPanel, pipeRow, pipeCol, colMax);
+
+					boolean stillFlow = true;
+					boolean[] canFlow = map.canFlowDirections(pipeRow, pipeCol);
+
+					if (canFlow[0] && pipeRow - 1 >= 0 && !map.getUnitCode(pipeRow - 1, pipeCol).equals("-")
+							&& !waterMap.get(pipeRow - 1).get(pipeCol)) {
+						if (map.canFlowDirections(pipeRow - 1, pipeCol)[0]) {
+							tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
+							stillFlow = false;
+						}
+					}
+
+					if (canFlow[1] && pipeCol + 1 < rowMax && !map.getUnitCode(pipeRow, pipeCol + 1).equals("-")
+							&& !waterMap.get(pipeRow).get(pipeCol + 1)) {
+						if (map.canFlowDirections(pipeRow, pipeCol + 1)[3]) {
+							tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
+							stillFlow = false;
+						}
+					}
+
+					if (canFlow[2] && pipeRow + 1 < colMax && !map.getUnitCode(pipeRow + 1, pipeCol).equals("-")
+							&& !waterMap.get(pipeRow + 1).get(pipeCol)) {
+						if (map.canFlowDirections(pipeRow + 1, pipeCol)[0]) {
+							tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
+							stillFlow = false;
+						}
+					}
+
+					if (canFlow[3] && pipeCol - 1 >= 0 && !map.getUnitCode(pipeRow, pipeCol - 1).equals("-")
+							&& !waterMap.get(pipeRow).get(pipeCol - 1)) {
+						if (map.canFlowDirections(pipeRow, pipeCol - 1)[1]) {
+							tmpPipe.add(new int[] { pipeRow, pipeCol - 1 });
+							stillFlow = false;
+						}
+					}
+
+					if (stillFlow)
+						noWasteWater[0] = false; // 更新 noWasteWater 的值
+
+					waterPipes.clear(); // 清空 waterPipes
+					waterPipes.addAll(tmpPipe); // 將 tmpPipe 中的元素加入 waterPipes
+
+					controller[0] += 1;
+				}
+				if ((waterPipes.size() == 0 && !checkEnd(endPipes, waterMap)) || (controller[0] >= colMax * rowMax)) {
+					System.out.println(waterPipes.size() + " " + checkEnd(endPipes, waterMap));
+					((Timer) e.getSource()).stop();
+					for (int i = 0; i < endPipes.size(); i++) {
+						int pipeRow = endPipes.get(i)[0];
+						int pipeCol = endPipes.get(i)[1];
+						changeImage(gameMapPanel, pipeRow, pipeCol, colMax);
+					}
+				}
+			}
+		});
+		timer.start();
+
+		playerWin = checkEnd(endPipes, waterMap) && noWasteWater[0];
+
+	}
+
+	void changeImage(JPanel gameMapPanel, int pipeRow, int pipeCol, int width) {
+		int elementWidth = gameMapPanel.getWidth() / map.getWidth();
+		int elementHeight = gameMapPanel.getHeight() / map.getHeight();
+		Component[] components = gameMapPanel.getComponents();
+		Component component = components[pipeRow * width + pipeCol];
+		if (component instanceof JLabel) {
+			JLabel element = (JLabel) component;
+			ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(pipeRow, pipeCol, true, false)));
+			System.out.println(map.getImagePath(pipeRow, pipeCol, true, false));
+			if (!(map.getUnitCode(pipeRow, pipeCol).equals("w") || map.getUnitCode(pipeRow, pipeCol).equals("W"))) {
+				image = rotateIcon(image, 90 * (map.getUnitAngle(pipeRow, pipeCol) - 1));
+			}
+			element.setIcon(scaledIcon(image, elementWidth, elementHeight));
+		}
+	}
+
 	private ImageIcon getIconByPath(String imagePath) {
 		BufferedImage originalImage = null;
 		try {
@@ -165,20 +293,38 @@ public class Game {
 				JLabel element = new JLabel();
 				element.setBounds(elementWidth * col, elementHeight * row, elementWidth, elementHeight);
 				gameMapPanel.add(element);
-				if (map.getUnitCode(row, col) < 0) {
+				if (map.getImagePath(row, col, false, false) < 0) {
 					continue;
 				}
+				int nowRow = row;
+				int nowCol = col;
 
-				if ((13 <= map.getUnitCode(row, col) && map.getUnitCode(row, col) <= 16)
-						|| (4 <= map.getUnitCode(row, col) && map.getUnitCode(row, col) <= 7)) {
-					ImageIcon image = getIconByPath(pipeImagePath.get(map.getUnitCode(row, col)));
+				if ((13 <= map.getImagePath(row, col, false, false) && map.getImagePath(row, col, false, false) <= 16)
+						|| (4 <= map.getImagePath(row, col, false, false)
+								&& map.getImagePath(row, col, false, false) <= 7)) {
+					ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(row, col, false, false)));
 					element.setIcon(scaledIcon(image, elementWidth, elementHeight));
 				} else {
-					ImageIcon image = getIconByPath(pipeImagePath.get(map.getUnitCode(row, col)));
+					ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(row, col, false, false)));
 					image = rotateIcon(image, 90 * (map.getUnitAngle(row, col) - 1));
 					element.setIcon(scaledIcon(image, elementWidth, elementHeight));
 				}
+
+				element.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						map.setUnitAngle(nowRow, nowCol, rotateRight);
+						ImageIcon image = getIconByPath(
+								pipeImagePath.get(map.getImagePath(nowRow, nowCol, false, false)));
+						if (!(13 <= map.getImagePath(nowRow, nowCol, false, false)
+								&& map.getImagePath(nowRow, nowCol, false, false) <= 16)) {
+							image = rotateIcon(image, 90 * (map.getUnitAngle(nowRow, nowCol) - 1));
+						}
+						element.setIcon(scaledIcon(image, elementWidth, elementHeight));
+					}
+				});
 			}
 		}
 	}
+
 }
