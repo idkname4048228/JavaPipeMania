@@ -18,6 +18,12 @@ import javax.swing.border.EmptyBorder;
 public class PipeManiaDemo extends JFrame {
 
 	private JPanel contentPane;
+	int game_map_index = 0;
+	Game game = null;
+	GameMap map = null;
+	ArrayList<JPanel> game_maps = null;
+	JButton lastRoundButton = null;
+	JButton nextRoundButton = null;
 
 	/**
 	 * Launch the application.
@@ -43,7 +49,6 @@ public class PipeManiaDemo extends JFrame {
 		Game game = new Game();
 		GameMap map = new GameMap(game.getCurrentMap());
 		ArrayList<JPanel> game_maps = new ArrayList<>();
-		int game_map_index = 0;
 
 		setTitle("PipeMania");
 		setResizable(false);
@@ -71,14 +76,14 @@ public class PipeManiaDemo extends JFrame {
 
 		JPanel GameMap1 = new JPanel();
 		GameMap1.setBackground(new Color(255, 255, 255));
-		GameMapPanel.add(GameMap1, "name_937573585471600");
+		GameMapPanel.add(GameMap1, "firstMap");
 		GameMap1.setLayout(null);
 		GameMap1.setBounds(0, 0, 650, 550);
 		game_maps.add(GameMap1);
 
 		JPanel GameMap2 = new JPanel();
 		GameMap2.setBackground(new Color(255, 255, 255));
-		GameMapPanel.add(GameMap2, "name_937573591616900");
+		GameMapPanel.add(GameMap2, "secondMap");
 		GameMap2.setLayout(null);
 		GameMap2.setBounds(0, 0, 650, 550);
 		game_maps.add(GameMap2);
@@ -93,21 +98,11 @@ public class PipeManiaDemo extends JFrame {
 
 		JButton leftRotateButton = new JButton("向左旋轉");
 		leftRotateButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		leftRotateButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		leftRotateButton.setBounds(10, 30, 150, 70);
 		OperatePanel.add(leftRotateButton);
 
 		JButton righttRotateButton = new JButton("向右旋轉");
 		righttRotateButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		righttRotateButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		righttRotateButton.setBounds(164, 30, 150, 70);
 		OperatePanel.add(righttRotateButton);
 
@@ -117,11 +112,6 @@ public class PipeManiaDemo extends JFrame {
 		OperatePanel.add(lastRoundButton);
 
 		JButton nextRoundButton = new JButton("下一關");
-		nextRoundButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		nextRoundButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		nextRoundButton.setBounds(164, 450, 150, 70);
 		OperatePanel.add(nextRoundButton);
@@ -138,35 +128,70 @@ public class PipeManiaDemo extends JFrame {
 		OperatePanel.add(checkButton);
 
 		JButton restrartButton = new JButton("重新開始");
+		restrartButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
+		restrartButton.setBounds(164, 370, 150, 70);
+		OperatePanel.add(restrartButton);
+
+		leftRotateButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+
+		righttRotateButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+
+		checkButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+
 		restrartButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		restrartButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		restrartButton.setBounds(164, 370, 150, 70);
-		OperatePanel.add(restrartButton);
 
-		JLabel stepsLabel = new JLabel("--/--");
-		stepsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		stepsLabel.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		stepsLabel.setBounds(10, 180, 304, 50);
-		OperatePanel.add(stepsLabel);
+		lastRoundButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CardLayout cardLayout = (CardLayout) GameMapPanel.getLayout();
+				cardLayout.show(GameMapPanel, "firstMap");
+				game_map_index -= 1;
+				game.changeMap(-1);
 
-		JLabel currentBlockTip = new JLabel("當前選擇格子：");
-		currentBlockTip.setVerticalAlignment(SwingConstants.TOP);
-		currentBlockTip.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		currentBlockTip.setBounds(10, 240, 304, 50);
-		OperatePanel.add(currentBlockTip);
+				lastRoundButton.setEnabled(!(game_map_index == 0));
+				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 
-		JLabel currentBlockLabel = new JLabel("row: - col: - ");
-		currentBlockLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		currentBlockLabel.setFont(new Font("微軟正黑體", Font.BOLD, 24));
-		currentBlockLabel.setBounds(10, 270, 304, 70);
-		OperatePanel.add(currentBlockLabel);
+				map.init(game.getCurrentMap());
+				game.create(GameMap1, map);
+			}
+		});
+
+		nextRoundButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CardLayout cardLayout = (CardLayout) GameMapPanel.getLayout();
+				cardLayout.show(GameMapPanel, "secondMap");
+				game_map_index += 1;
+				game.changeMap(1);
+
+				lastRoundButton.setEnabled(!(game_map_index == 0));
+				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
+
+				map.init(game.getCurrentMap());
+				game.create(GameMap2, map);
+			}
+		});
 
 		game_map_index = 0;
 		map.init(game.getCurrentMap());
 		game.create(GameMap1, map);
+		lastRoundButton.setEnabled(!(game_map_index == 0));
+		nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 	}
 }

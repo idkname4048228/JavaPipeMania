@@ -22,6 +22,7 @@ public class Game {
 	ArrayList<String> pipeImagePath = new ArrayList<>(Collections.nCopies(17, null));
 	GameMap map = null;
 	int nowMapIndex = 0;
+	protected boolean rotateRight = true;
 
 	Game() {
 		mapStorage = readMapFile();
@@ -92,6 +93,10 @@ public class Game {
 
 	ArrayList<ArrayList<String>> getCurrentMap() {
 		return currentMap;
+	}
+
+	boolean isLastMap(int index) {
+		return index == mapStorage.size() - 1;
 	}
 
 	void changeMap(int change) {
