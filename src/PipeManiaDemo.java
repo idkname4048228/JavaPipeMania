@@ -51,7 +51,6 @@ public class PipeManiaDemo extends JFrame {
 		ArrayList<JPanel> game_maps = new ArrayList<>();
 
 		setTitle("PipeMania");
-		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(500, 200, 1000, 600);
 		contentPane = new JPanel();
@@ -110,6 +109,7 @@ public class PipeManiaDemo extends JFrame {
 		lastRoundButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		lastRoundButton.setBounds(10, 450, 150, 70);
 		OperatePanel.add(lastRoundButton);
+
 		JButton nextRoundButton = new JButton("下一關");
 		nextRoundButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		nextRoundButton.setBounds(164, 450, 150, 70);
@@ -170,6 +170,7 @@ public class PipeManiaDemo extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				game.check(game_maps.get(game_map_index));
 				checkButton.setEnabled(false);
+				game.setRotate(game_maps.get(game_map_index), false);
 			}
 		});
 
@@ -179,6 +180,7 @@ public class PipeManiaDemo extends JFrame {
 				map.init(game.getCurrentMap());
 				game.create(game_maps.get(game_map_index), map);
 				checkButton.setEnabled(true);
+				game.setRotate(game_maps.get(game_map_index), true);
 			}
 		});
 
@@ -193,6 +195,7 @@ public class PipeManiaDemo extends JFrame {
 				lastRoundButton.setEnabled(!(game_map_index == 0));
 				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 				checkButton.setEnabled(true);
+				game.setRotate(game_maps.get(game_map_index), true);
 
 				map.init(game.getCurrentMap());
 				game.create(GameMap1, map);
@@ -210,6 +213,7 @@ public class PipeManiaDemo extends JFrame {
 				lastRoundButton.setEnabled(!(game_map_index == 0));
 				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 				checkButton.setEnabled(true);
+				game.setRotate(game_maps.get(game_map_index), true);
 
 				map.init(game.getCurrentMap());
 				game.create(GameMap2, map);

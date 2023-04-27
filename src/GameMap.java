@@ -116,8 +116,8 @@ public class GameMap {
 			directions[degree % 4] = true;
 			break;
 		case "t":
-			directions[degree % 4] = true;
-			directions[(degree + 1) % 4] = true;
+			directions[degree - 1] = true;
+			directions[degree] = true;
 			directions[(degree + 2) % 4] = true;
 			break;
 		case "c":

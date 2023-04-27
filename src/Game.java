@@ -124,7 +124,19 @@ public class Game {
 		return true;
 	}
 
+	void setRotate(JPanel gameMapPanel, boolean rotate) {
+		Component[] components = gameMapPanel.getComponents();
+		for (Component component : components) {
+			if (component instanceof JLabel) {
+				JLabel element = (JLabel) component;
+				element.setDisabledIcon(element.getIcon());
+				element.setEnabled(rotate);
+			}
+		}
+	}
+
 	void check(JPanel gameMapPanel) {
+
 		final boolean[] noWasteWater = { true }; // 使用陣列將 noWasteWater 變成 effectively final 變數
 
 		final int colMax = map.getWidth();
@@ -154,20 +166,22 @@ public class Game {
 					int pipeCol = waterPipes.get(i)[1];
 
 					waterMap.get(pipeRow).set(pipeCol, true);
-					changeImage(gameMapPanel, pipeRow, pipeCol, colMax);
+					changeImage(gameMapPanel, pipeRow, pipeCol);
+					if (map.getUnitCode(pipeRow, pipeCol).equals("w"))
+						continue;
 
 					boolean stillFlow = true;
 					boolean[] canFlow = map.canFlowDirections(pipeRow, pipeCol);
 
 					if (canFlow[0] && pipeRow - 1 >= 0 && !map.getUnitCode(pipeRow - 1, pipeCol).equals("-")
 							&& !waterMap.get(pipeRow - 1).get(pipeCol)) {
-						if (map.canFlowDirections(pipeRow - 1, pipeCol)[0]) {
+						if (map.canFlowDirections(pipeRow - 1, pipeCol)[2]) {
 							tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
 							stillFlow = false;
 						}
 					}
 
-					if (canFlow[1] && pipeCol + 1 < rowMax && !map.getUnitCode(pipeRow, pipeCol + 1).equals("-")
+					if (canFlow[1] && pipeCol + 1 < colMax && !map.getUnitCode(pipeRow, pipeCol + 1).equals("-")
 							&& !waterMap.get(pipeRow).get(pipeCol + 1)) {
 						if (map.canFlowDirections(pipeRow, pipeCol + 1)[3]) {
 							tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
@@ -175,7 +189,7 @@ public class Game {
 						}
 					}
 
-					if (canFlow[2] && pipeRow + 1 < colMax && !map.getUnitCode(pipeRow + 1, pipeCol).equals("-")
+					if (canFlow[2] && pipeRow + 1 < rowMax && !map.getUnitCode(pipeRow + 1, pipeCol).equals("-")
 							&& !waterMap.get(pipeRow + 1).get(pipeCol)) {
 						if (map.canFlowDirections(pipeRow + 1, pipeCol)[0]) {
 							tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
@@ -194,18 +208,18 @@ public class Game {
 					if (stillFlow)
 						noWasteWater[0] = false; // 更新 noWasteWater 的值
 
-					waterPipes.clear(); // 清空 waterPipes
-					waterPipes.addAll(tmpPipe); // 將 tmpPipe 中的元素加入 waterPipes
-
 					controller[0] += 1;
 				}
-				if ((waterPipes.size() == 0 && !checkEnd(endPipes, waterMap)) || (controller[0] >= colMax * rowMax)) {
-					System.out.println(waterPipes.size() + " " + checkEnd(endPipes, waterMap));
+				waterPipes.clear(); // 清空 waterPipes
+				waterPipes.addAll(tmpPipe); // 將 tmpPipe 中的元素加入 waterPipes
+				System.out.println("running");
+				if (checkEnd(endPipes, waterMap) || (waterPipes.size() == 0) || (controller[0] >= colMax * rowMax)) {
 					((Timer) e.getSource()).stop();
 					for (int i = 0; i < endPipes.size(); i++) {
 						int pipeRow = endPipes.get(i)[0];
 						int pipeCol = endPipes.get(i)[1];
-						changeImage(gameMapPanel, pipeRow, pipeCol, colMax);
+						if (waterMap.get(pipeRow).get(pipeCol))
+							changeImage(gameMapPanel, pipeRow, pipeCol);
 					}
 				}
 			}
@@ -216,19 +230,18 @@ public class Game {
 
 	}
 
-	void changeImage(JPanel gameMapPanel, int pipeRow, int pipeCol, int width) {
+	void changeImage(JPanel gameMapPanel, int pipeRow, int pipeCol) {
 		int elementWidth = gameMapPanel.getWidth() / map.getWidth();
 		int elementHeight = gameMapPanel.getHeight() / map.getHeight();
 		Component[] components = gameMapPanel.getComponents();
-		Component component = components[pipeRow * width + pipeCol];
+		Component component = components[pipeRow * map.getWidth() + pipeCol];
 		if (component instanceof JLabel) {
 			JLabel element = (JLabel) component;
 			ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(pipeRow, pipeCol, true, false)));
-			System.out.println(map.getImagePath(pipeRow, pipeCol, true, false));
 			if (!(map.getUnitCode(pipeRow, pipeCol).equals("w") || map.getUnitCode(pipeRow, pipeCol).equals("W"))) {
 				image = rotateIcon(image, 90 * (map.getUnitAngle(pipeRow, pipeCol) - 1));
 			}
-			element.setIcon(scaledIcon(image, elementWidth, elementHeight));
+			element.setDisabledIcon(scaledIcon(image, elementWidth, elementHeight));
 		}
 	}
 
@@ -283,6 +296,7 @@ public class Game {
 	}
 
 	protected void create(JPanel gameMapPanel, GameMap map) {
+		this.map = map;
 		gameMapPanel.removeAll();
 		gameMapPanel.revalidate();
 		int elementWidth = gameMapPanel.getWidth() / map.getWidth();
@@ -316,8 +330,8 @@ public class Game {
 						map.setUnitAngle(nowRow, nowCol, rotateRight);
 						ImageIcon image = getIconByPath(
 								pipeImagePath.get(map.getImagePath(nowRow, nowCol, false, false)));
-						if (!(13 <= map.getImagePath(nowRow, nowCol, false, false)
-								&& map.getImagePath(nowRow, nowCol, false, false) <= 16)) {
+						if (!(map.getUnitCode(nowRow, nowCol).equals("w")
+								|| map.getUnitCode(nowRow, nowCol).equals("W"))) {
 							image = rotateIcon(image, 90 * (map.getUnitAngle(nowRow, nowCol) - 1));
 						}
 						element.setIcon(scaledIcon(image, elementWidth, elementHeight));
