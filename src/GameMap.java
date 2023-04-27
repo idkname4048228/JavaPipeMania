@@ -51,7 +51,7 @@ public class GameMap {
 		}
 	}
 
-	protected int getImagePath(int row, int col, boolean withWater, boolean withSecondWater) {
+	protected int getImagePath(int row, int col, boolean withWater) {
 		switch (currentMap.get(row).get(col).charAt(0)) {
 		case 's':
 			return withWater ? 8 : 0;
@@ -60,10 +60,11 @@ public class GameMap {
 		case 't':
 			return withWater ? 10 : 2;
 		case 'c':
-			if (withWater && withSecondWater) {
-				return 12;
-			} else if (withWater || withSecondWater) {
-				return 11;
+			if (withWater) {
+				if (getUnitAngle(row, col) == 3)
+					return 12;
+				else
+					return 11;
 			} else {
 				return 3;
 			}
@@ -91,6 +92,10 @@ public class GameMap {
 		int originalAngle = getUnitAngle(row, col);
 
 		currentMap.get(row).set(col, unit + Integer.toString((originalAngle - 1 + (right ? 1 : -1) + 4) % 4 + 1));
+	}
+
+	protected void setCrossAngle(int row, int col, int angle) {
+		currentMap.get(row).set(col, getUnitCode(row, col) + Integer.toString(angle));
 	}
 
 	protected ArrayList<int[]> getStartPipe() {

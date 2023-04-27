@@ -173,35 +173,94 @@ public class Game {
 					boolean stillFlow = true;
 					boolean[] canFlow = map.canFlowDirections(pipeRow, pipeCol);
 
-					if (canFlow[0] && pipeRow - 1 >= 0 && !map.getUnitCode(pipeRow - 1, pipeCol).equals("-")
-							&& !waterMap.get(pipeRow - 1).get(pipeCol)) {
-						if (map.canFlowDirections(pipeRow - 1, pipeCol)[2]) {
+					if (map.getUnitCode(pipeRow, pipeCol).equals("c")) {
+						if (map.getUnitAngle(pipeRow, pipeCol) == 1 || map.getUnitAngle(pipeRow, pipeCol) == 3) {
+							if (pipeCol - 1 >= 0 && map.canFlowDirections(pipeRow, pipeCol - 1)[1]
+									&& !waterMap.get(pipeRow).get(pipeCol - 1)) {
+								tmpPipe.add(new int[] { pipeRow, pipeCol - 1 });
+							}
+
+							if (pipeCol + 1 < colMax && map.canFlowDirections(pipeRow, pipeCol + 1)[3]
+									&& !waterMap.get(pipeRow).get(pipeCol + 1))
+								tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
+						}
+						if (map.getUnitAngle(pipeRow, pipeCol) == 2 || map.getUnitAngle(pipeRow, pipeCol) == 3) {
+							if (pipeRow - 1 >= 0 && map.canFlowDirections(pipeRow - 1, pipeCol)[2]
+									&& !waterMap.get(pipeRow - 1).get(pipeCol))
+								tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
+							if (pipeRow + 1 < rowMax && map.canFlowDirections(pipeRow + 1, pipeCol)[0]
+									&& !waterMap.get(pipeRow + 1).get(pipeCol))
+								tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
+						}
+
+					}
+
+					if (canFlow[0] && pipeRow - 1 >= 0 && !(map.getUnitCode(pipeRow - 1, pipeCol).equals("-")
+							|| map.getUnitCode(pipeRow, pipeCol).equals("c"))) {
+						if (!waterMap.get(pipeRow - 1).get(pipeCol) && map.canFlowDirections(pipeRow - 1, pipeCol)[2]) { // 上面沒水，且可以從下面流上去
+							if (map.getUnitCode(pipeRow - 1, pipeCol).equals("c")) // 上面沒水，但是是交叉水管
+								map.setCrossAngle(pipeRow - 1, pipeCol, 2);
 							tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
 							stillFlow = false;
+						} else if (waterMap.get(pipeRow - 1).get(pipeCol)
+								&& map.getUnitCode(pipeRow - 1, pipeCol).equals("c")) { // 如果上面是交叉水管且有水，那他必定是 1(水平流動)
+																						// 2(垂直流動) 3(交叉流動)
+							if (map.getUnitAngle(pipeRow - 1, pipeCol) == 1) { // 將 1(水平流動) 的交叉水管改為 3(交叉流動)
+								map.setCrossAngle(pipeRow - 1, pipeCol, 3);
+								tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
+								stillFlow = false;
+							}
 						}
 					}
 
-					if (canFlow[1] && pipeCol + 1 < colMax && !map.getUnitCode(pipeRow, pipeCol + 1).equals("-")
-							&& !waterMap.get(pipeRow).get(pipeCol + 1)) {
-						if (map.canFlowDirections(pipeRow, pipeCol + 1)[3]) {
+					if (canFlow[1] && pipeCol + 1 < colMax && !(map.getUnitCode(pipeRow, pipeCol + 1).equals("-")
+							|| map.getUnitCode(pipeRow, pipeCol).equals("c"))) {
+						if (!waterMap.get(pipeRow).get(pipeCol + 1) && map.canFlowDirections(pipeRow, pipeCol + 1)[3]) {
+							if (map.getUnitCode(pipeRow, pipeCol + 1).equals("c"))
+								map.setCrossAngle(pipeRow, pipeCol + 1, 1);
 							tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
 							stillFlow = false;
+						} else if (waterMap.get(pipeRow).get(pipeCol + 1)
+								&& map.getUnitCode(pipeRow, pipeCol + 1).equals("c")) {
+							if (map.getUnitAngle(pipeRow, pipeCol + 1) == 2) {
+								map.setCrossAngle(pipeRow, pipeCol + 1, 3);
+								tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
+								stillFlow = false;
+							}
 						}
 					}
 
-					if (canFlow[2] && pipeRow + 1 < rowMax && !map.getUnitCode(pipeRow + 1, pipeCol).equals("-")
-							&& !waterMap.get(pipeRow + 1).get(pipeCol)) {
-						if (map.canFlowDirections(pipeRow + 1, pipeCol)[0]) {
+					if (canFlow[2] && pipeRow + 1 < rowMax && !(map.getUnitCode(pipeRow + 1, pipeCol).equals("-")
+							|| map.getUnitCode(pipeRow, pipeCol).equals("c"))) {
+						if (!waterMap.get(pipeRow + 1).get(pipeCol) && map.canFlowDirections(pipeRow + 1, pipeCol)[0]) {
+							if (map.getUnitCode(pipeRow + 1, pipeCol).equals("c"))
+								map.setCrossAngle(pipeRow + 1, pipeCol, 2);
 							tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
 							stillFlow = false;
+						} else if (waterMap.get(pipeRow + 1).get(pipeCol)
+								&& map.getUnitCode(pipeRow + 1, pipeCol).equals("c")) {
+							if (map.getUnitAngle(pipeRow + 1, pipeCol) == 1) {
+								map.setCrossAngle(pipeRow + 1, pipeCol, 3);
+								tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
+								stillFlow = false;
+							}
 						}
 					}
 
-					if (canFlow[3] && pipeCol - 1 >= 0 && !map.getUnitCode(pipeRow, pipeCol - 1).equals("-")
-							&& !waterMap.get(pipeRow).get(pipeCol - 1)) {
-						if (map.canFlowDirections(pipeRow, pipeCol - 1)[1]) {
+					if (canFlow[3] && pipeCol - 1 >= 0 && !(map.getUnitCode(pipeRow, pipeCol - 1).equals("-")
+							|| map.getUnitCode(pipeRow, pipeCol).equals("c"))) {
+						if (!waterMap.get(pipeRow).get(pipeCol - 1) && map.canFlowDirections(pipeRow, pipeCol - 1)[1]) {
+							if (map.getUnitCode(pipeRow, pipeCol - 1).equals("c"))
+								map.setCrossAngle(pipeRow, pipeCol - 1, 1);
 							tmpPipe.add(new int[] { pipeRow, pipeCol - 1 });
 							stillFlow = false;
+						} else if (waterMap.get(pipeRow).get(pipeCol - 1)
+								&& map.getUnitCode(pipeRow, pipeCol - 1).equals("c")) {
+							if (map.getUnitAngle(pipeRow, pipeCol - 1) == 2) {
+								map.setCrossAngle(pipeRow, pipeCol - 1, 3);
+								tmpPipe.add(new int[] { pipeRow, pipeCol - 1 });
+								stillFlow = false;
+							}
 						}
 					}
 
@@ -209,10 +268,17 @@ public class Game {
 						noWasteWater[0] = false; // 更新 noWasteWater 的值
 
 					controller[0] += 1;
+					System.out.println(pipeRow + " " + pipeCol);
+
+					for (int j = 0; j < tmpPipe.size(); j++) {
+						System.out.println(tmpPipe.get(j)[0] + " " + tmpPipe.get(j)[1]);
+					}
+					System.out.println("");
 				}
 				waterPipes.clear(); // 清空 waterPipes
 				waterPipes.addAll(tmpPipe); // 將 tmpPipe 中的元素加入 waterPipes
-				System.out.println("running");
+				tmpPipe.clear();
+
 				if (checkEnd(endPipes, waterMap) || (waterPipes.size() == 0) || (controller[0] >= colMax * rowMax)) {
 					((Timer) e.getSource()).stop();
 					for (int i = 0; i < endPipes.size(); i++) {
@@ -237,7 +303,7 @@ public class Game {
 		Component component = components[pipeRow * map.getWidth() + pipeCol];
 		if (component instanceof JLabel) {
 			JLabel element = (JLabel) component;
-			ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(pipeRow, pipeCol, true, false)));
+			ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(pipeRow, pipeCol, true)));
 			if (!(map.getUnitCode(pipeRow, pipeCol).equals("w") || map.getUnitCode(pipeRow, pipeCol).equals("W"))) {
 				image = rotateIcon(image, 90 * (map.getUnitAngle(pipeRow, pipeCol) - 1));
 			}
@@ -307,19 +373,18 @@ public class Game {
 				JLabel element = new JLabel();
 				element.setBounds(elementWidth * col, elementHeight * row, elementWidth, elementHeight);
 				gameMapPanel.add(element);
-				if (map.getImagePath(row, col, false, false) < 0) {
+				if (map.getImagePath(row, col, false) < 0) {
 					continue;
 				}
 				int nowRow = row;
 				int nowCol = col;
 
-				if ((13 <= map.getImagePath(row, col, false, false) && map.getImagePath(row, col, false, false) <= 16)
-						|| (4 <= map.getImagePath(row, col, false, false)
-								&& map.getImagePath(row, col, false, false) <= 7)) {
-					ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(row, col, false, false)));
+				if ((13 <= map.getImagePath(row, col, false) && map.getImagePath(row, col, false) <= 16)
+						|| (4 <= map.getImagePath(row, col, false) && map.getImagePath(row, col, false) <= 7)) {
+					ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(row, col, false)));
 					element.setIcon(scaledIcon(image, elementWidth, elementHeight));
 				} else {
-					ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(row, col, false, false)));
+					ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(row, col, false)));
 					image = rotateIcon(image, 90 * (map.getUnitAngle(row, col) - 1));
 					element.setIcon(scaledIcon(image, elementWidth, elementHeight));
 				}
@@ -328,8 +393,7 @@ public class Game {
 					@Override
 					public void mouseClicked(MouseEvent e) {
 						map.setUnitAngle(nowRow, nowCol, rotateRight);
-						ImageIcon image = getIconByPath(
-								pipeImagePath.get(map.getImagePath(nowRow, nowCol, false, false)));
+						ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(nowRow, nowCol, false)));
 						if (!(map.getUnitCode(nowRow, nowCol).equals("w")
 								|| map.getUnitCode(nowRow, nowCol).equals("W"))) {
 							image = rotateIcon(image, 90 * (map.getUnitAngle(nowRow, nowCol) - 1));
