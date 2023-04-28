@@ -13,7 +13,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Observable;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -21,7 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Game {
+public class Game extends Observable {
 
 	ArrayList<ArrayList<ArrayList<String>>> mapStorage = new ArrayList<>();
 	ArrayList<ArrayList<String>> currentMap = new ArrayList<>();
@@ -109,6 +111,8 @@ public class Game {
 
 	void resetSteps() {
 		currentSteps = 0;
+		setChanged();
+		notifyObservers(currentSteps);
 	}
 
 	void checkSteps(int limit) {
@@ -158,7 +162,7 @@ public class Game {
 		}
 	}
 
-	void check(JPanel gameMapPanel) {
+	boolean check(JPanel gameMapPanel) {
 
 		final boolean[] noWasteWater = { true }; // 使用陣列將 noWasteWater 變成 effectively final 變數
 		GameMap map = gameMaps.get(nowMapIndex);
@@ -181,6 +185,7 @@ public class Game {
 		final ArrayList<int[]> endPipes = map.getEndPipe();
 
 		Timer timer = null;
+		CountDownLatch latch = new CountDownLatch(1);
 		timer = new Timer(500, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -304,13 +309,20 @@ public class Game {
 						int pipeCol = endPipes.get(i)[1];
 						if (waterMap.get(pipeRow).get(pipeCol))
 							changeImage(gameMapPanel, pipeRow, pipeCol, map);
+						latch.countDown();
 					}
 				}
 			}
 		});
 		timer.start();
+		try {
+			latch.await();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-		playerLose = checkEnd(endPipes, waterMap) && noWasteWater[0];
+		return checkEnd(endPipes, waterMap) && noWasteWater[0];
 
 	}
 
@@ -388,7 +400,7 @@ public class Game {
 		}
 	}
 
-	protected void bind(JPanel gameMapPanel, int map_index) {
+	protected void bind(JPanel gameMapPanel, int map_index, int stepLimit) {
 		if (map_index >= mapStorage.size() || map_index < 0)
 			return;
 
@@ -424,7 +436,9 @@ public class Game {
 				element.addMouseListener(new MouseAdapter() {
 					int relativeMapIndex = map_index;
 					GameMap nowMap = gameMaps.get(relativeMapIndex);
+					int relativeLimit = stepLimit;
 
+					@SuppressWarnings("deprecation")
 					@Override
 					public void mouseClicked(MouseEvent e) {
 						nowMap.setUnitAngle(nowRow, nowCol, rotateRight);
@@ -435,6 +449,9 @@ public class Game {
 						}
 						element.setIcon(scaledIcon(image, elementWidth, elementHeight));
 						currentSteps += 1;
+						setChanged();
+						notifyObservers(currentSteps);
+						checkSteps(relativeLimit);
 					}
 				});
 			}

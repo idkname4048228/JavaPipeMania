@@ -7,16 +7,19 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
-public class PipeManiaDemo extends JFrame {
+public class PipeManiaDemo extends JFrame implements Observer {
 
 	private JPanel contentPane;
 	int game_map_index = 0;
@@ -25,6 +28,7 @@ public class PipeManiaDemo extends JFrame {
 	ArrayList<JPanel> game_maps = null;
 	JButton lastRoundButton = null;
 	JButton nextRoundButton = null;
+	JLabel stepsLabel = null;
 
 	/**
 	 * Launch the application.
@@ -47,7 +51,8 @@ public class PipeManiaDemo extends JFrame {
 	 * Create the frame.
 	 */
 	public PipeManiaDemo() {
-		Game game = new Game();
+		this.game = new Game();
+		game.addObserver(this);
 		GameMap map = new GameMap(game.getCurrentMap());
 		ArrayList<JPanel> game_maps = new ArrayList<>();
 		ArrayList<String> game_maps_name = new ArrayList<>();
@@ -143,7 +148,7 @@ public class PipeManiaDemo extends JFrame {
 		restrartButton.setBounds(164, 370, 150, 70);
 		OperatePanel.add(restrartButton);
 
-		JLabel stepsLabel = new JLabel("--/--");
+		stepsLabel = new JLabel("--/--");
 		stepsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		stepsLabel.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		stepsLabel.setBounds(10, 180, 304, 50);
@@ -180,9 +185,21 @@ public class PipeManiaDemo extends JFrame {
 		checkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				game.check(game_maps.get(game_map_index));
-				checkButton.setEnabled(false);
 				game.setRotate(game_maps.get(game_map_index), false);
+				checkButton.setEnabled(false);
+
+				boolean[] win = { game.playerLose };
+
+				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						win[0] = game.check(game_maps.get(game_map_index));
+						JOptionPane.showMessageDialog(null, win[0] ? "你贏了" : "你失敗了");
+						return null;
+					}
+				};
+				worker.execute();
+
 			}
 		});
 
@@ -190,9 +207,10 @@ public class PipeManiaDemo extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				map.init(game.getCurrentMap());
-				game.bind(game_maps.get(game_map_index), game.getMapIndex());
+				game.bind(game_maps.get(game_map_index), game.getMapIndex(), 100);
 				checkButton.setEnabled(true);
 				game.setRotate(game_maps.get(game_map_index), true);
+				game.resetSteps();
 			}
 		});
 
@@ -215,7 +233,7 @@ public class PipeManiaDemo extends JFrame {
 				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 					@Override
 					protected Void doInBackground() throws Exception {
-						game.bind(game_maps.get((game_map_index + 2) % 3), game.getMapIndex() - 1);
+						game.bind(game_maps.get((game_map_index + 2) % 3), game.getMapIndex() - 1, 100);
 						return null;
 					}
 				};
@@ -242,7 +260,7 @@ public class PipeManiaDemo extends JFrame {
 				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 					@Override
 					protected Void doInBackground() throws Exception {
-						game.bind(game_maps.get((game_map_index + 1) % 3), game.getMapIndex() + 1);
+						game.bind(game_maps.get((game_map_index + 1) % 3), game.getMapIndex() + 1, 100);
 						return null;
 					}
 				};
@@ -252,10 +270,20 @@ public class PipeManiaDemo extends JFrame {
 
 		game_map_index = 0;
 		map.init(game.getCurrentMap());
-		game.bind(GameMap3, 2);
-		game.bind(GameMap2, 1);
-		game.bind(GameMap1, 0);
+		game.bind(GameMap3, 2, 100);
+		game.bind(GameMap2, 1, 100);
+		game.bind(GameMap1, 0, 100);
 		lastRoundButton.setEnabled(!(game_map_index == 0));
 		nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		int step = (int) arg;
+		stepsLabel.setText(step + "/" + 100);
+		if (game.playerLose) {
+			JOptionPane.showMessageDialog(null, "你失敗了");
+		}
+	}
+
 }
