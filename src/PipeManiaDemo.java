@@ -49,6 +49,7 @@ public class PipeManiaDemo extends JFrame {
 		Game game = new Game();
 		GameMap map = new GameMap(game.getCurrentMap());
 		ArrayList<JPanel> game_maps = new ArrayList<>();
+		ArrayList<String> game_maps_name = new ArrayList<>();
 
 		setTitle("PipeMania");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -79,6 +80,7 @@ public class PipeManiaDemo extends JFrame {
 		GameMap1.setLayout(null);
 		GameMap1.setBounds(0, 0, 650, 550);
 		game_maps.add(GameMap1);
+		game_maps_name.add("firstMap");
 
 		JPanel GameMap2 = new JPanel();
 		GameMap2.setBackground(new Color(255, 255, 255));
@@ -86,6 +88,15 @@ public class PipeManiaDemo extends JFrame {
 		GameMap2.setLayout(null);
 		GameMap2.setBounds(0, 0, 650, 550);
 		game_maps.add(GameMap2);
+		game_maps_name.add("secondMap");
+
+		JPanel GameMap3 = new JPanel();
+		GameMap3.setBackground(new Color(255, 255, 255));
+		GameMapPanel.add(GameMap3, "thirdMap");
+		GameMap3.setLayout(null);
+		GameMap3.setBounds(0, 0, 650, 550);
+		game_maps.add(GameMap3);
+		game_maps_name.add("thirdMap");
 
 		JPanel OperatePanel = new JPanel();
 		OperatePanel.setLayout(null);
@@ -178,7 +189,7 @@ public class PipeManiaDemo extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				map.init(game.getCurrentMap());
-				game.create(game_maps.get(game_map_index), map);
+				game.bind(game_maps.get(game_map_index), game.getMapIndex());
 				checkButton.setEnabled(true);
 				game.setRotate(game_maps.get(game_map_index), true);
 			}
@@ -188,17 +199,17 @@ public class PipeManiaDemo extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CardLayout cardLayout = (CardLayout) GameMapPanel.getLayout();
-				cardLayout.show(GameMapPanel, "firstMap");
-				game_map_index -= 1;
+				game_map_index = (game.getMapIndex() - 1) + 3;
+				game_map_index %= 3;
+				cardLayout.show(GameMapPanel, game_maps_name.get(game_map_index));
 				game.changeMap(-1);
 
 				lastRoundButton.setEnabled(!(game_map_index == 0));
-				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
+				nextRoundButton.setEnabled(!game.isLastMap(game.getMapIndex()));
 				checkButton.setEnabled(true);
-				game.setRotate(game_maps.get(game_map_index), true);
 
 				map.init(game.getCurrentMap());
-				game.create(GameMap1, map);
+				game.bind(game_maps.get((game_map_index + 2) % 3), game.getMapIndex() - 1);
 			}
 		});
 
@@ -206,23 +217,25 @@ public class PipeManiaDemo extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CardLayout cardLayout = (CardLayout) GameMapPanel.getLayout();
-				cardLayout.show(GameMapPanel, "secondMap");
-				game_map_index += 1;
+				game_map_index = game.getMapIndex() + 1;
+				game_map_index %= 3;
+				cardLayout.show(GameMapPanel, game_maps_name.get(game_map_index));
 				game.changeMap(1);
 
 				lastRoundButton.setEnabled(!(game_map_index == 0));
-				nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
+				nextRoundButton.setEnabled(!game.isLastMap(game.getMapIndex()));
 				checkButton.setEnabled(true);
-				game.setRotate(game_maps.get(game_map_index), true);
 
 				map.init(game.getCurrentMap());
-				game.create(GameMap2, map);
+				game.bind(game_maps.get((game_map_index + 1) % 3), game.getMapIndex() + 1);
 			}
 		});
 
 		game_map_index = 0;
 		map.init(game.getCurrentMap());
-		game.create(GameMap1, map);
+		game.bind(GameMap1, 0);
+		game.bind(GameMap2, 1);
+		game.bind(GameMap3, 2);
 		lastRoundButton.setEnabled(!(game_map_index == 0));
 		nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 	}
