@@ -91,8 +91,6 @@ public class GameMap {
 		String unit = getUnitCode(row, col);
 		int originalAngle = getUnitAngle(row, col);
 
-		System.out.println(unit + " " + originalAngle);
-
 		currentMap.get(row).set(col, unit + Integer.toString((originalAngle - 1 + (right ? 1 : -1) + 4) % 4 + 1));
 	}
 
@@ -124,7 +122,7 @@ public class GameMap {
 			break;
 		case "t":
 			directions[degree - 1] = true;
-			directions[degree] = true;
+			directions[degree % 4] = true;
 			directions[(degree + 2) % 4] = true;
 			break;
 		case "c":

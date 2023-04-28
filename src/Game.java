@@ -29,7 +29,8 @@ public class Game {
 	ArrayList<GameMap> gameMaps = new ArrayList<>();
 	int nowMapIndex = 0;
 	protected boolean rotateRight = true;
-	boolean playerWin = false;
+	boolean playerLose = false;
+	int currentSteps = 0;
 
 	Game() {
 		mapStorage = readMapFile();
@@ -102,6 +103,22 @@ public class Game {
 		return currentMap;
 	}
 
+	int nowSteps() {
+		return currentSteps;
+	}
+
+	void resetSteps() {
+		currentSteps = 0;
+	}
+
+	void checkSteps(int limit) {
+		playerLose = (currentSteps >= limit);
+	}
+
+	boolean isPlayerWin() {
+		return !playerLose;
+	}
+
 	boolean isLastMap(int index) {
 		return index == mapStorage.size() - 1;
 	}
@@ -143,7 +160,6 @@ public class Game {
 
 	void check(JPanel gameMapPanel) {
 
-		System.out.println(nowMapIndex);
 		final boolean[] noWasteWater = { true }; // 使用陣列將 noWasteWater 變成 effectively final 變數
 		GameMap map = gameMaps.get(nowMapIndex);
 
@@ -159,13 +175,6 @@ public class Game {
 				tmp.add(false);
 			}
 			waterMap.add(tmp);
-		}
-
-		for (int i = 0; i < rowMax; i++) {
-			for (int j = 0; j < colMax; j++) {
-				System.out.print(map.getUnitCode(i, j) + map.getUnitAngle(i, j) + " ");
-			}
-			System.out.println();
 		}
 
 		final ArrayList<int[]> waterPipes = new ArrayList<>(map.getStartPipe()); // 使用 ArrayList 初始化 waterPipes 變數
@@ -301,7 +310,7 @@ public class Game {
 		});
 		timer.start();
 
-		playerWin = checkEnd(endPipes, waterMap) && noWasteWater[0];
+		playerLose = checkEnd(endPipes, waterMap) && noWasteWater[0];
 
 	}
 
@@ -370,15 +379,22 @@ public class Game {
 		return new ImageIcon(rotatedImage);
 	}
 
+	void printMap(GameMap map) {
+		for (int i = 0; i < map.getHeight(); i++) {
+			for (int j = 0; j < map.getWidth(); j++) {
+				System.out.print(map.getUnitCode(i, j) + "" + map.getUnitAngle(i, j) + " ");
+			}
+			System.out.println();
+		}
+	}
+
 	protected void bind(JPanel gameMapPanel, int map_index) {
 		if (map_index >= mapStorage.size() || map_index < 0)
 			return;
 
-		int nowMapIndex = map_index;
-		GameMap nowMap = new GameMap(mapStorage.get(nowMapIndex));
+		GameMap nowMap = new GameMap(mapStorage.get(map_index));
 		nowMap.init(mapStorage.get(map_index));
 		gameMaps.set(map_index, nowMap);
-		nowMap = gameMaps.get(map_index);
 		gameMapPanel.removeAll();
 		gameMapPanel.revalidate();
 		int elementWidth = gameMapPanel.getWidth() / nowMap.getWidth();
@@ -406,8 +422,8 @@ public class Game {
 				}
 
 				element.addMouseListener(new MouseAdapter() {
-					int nowMapIndex = map_index;
-					GameMap nowMap = new GameMap(mapStorage.get(nowMapIndex));
+					int relativeMapIndex = map_index;
+					GameMap nowMap = gameMaps.get(relativeMapIndex);
 
 					@Override
 					public void mouseClicked(MouseEvent e) {
@@ -418,6 +434,7 @@ public class Game {
 							image = rotateIcon(image, 90 * (nowMap.getUnitAngle(nowRow, nowCol) - 1));
 						}
 						element.setIcon(scaledIcon(image, elementWidth, elementHeight));
+						currentSteps += 1;
 					}
 				});
 			}

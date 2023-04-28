@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
 public class PipeManiaDemo extends JFrame {
@@ -204,12 +205,21 @@ public class PipeManiaDemo extends JFrame {
 				cardLayout.show(GameMapPanel, game_maps_name.get(game_map_index));
 				game.changeMap(-1);
 
-				lastRoundButton.setEnabled(!(game_map_index == 0));
+				lastRoundButton.setEnabled(!(game.getMapIndex() == 0));
 				nextRoundButton.setEnabled(!game.isLastMap(game.getMapIndex()));
 				checkButton.setEnabled(true);
 
 				map.init(game.getCurrentMap());
-				game.bind(game_maps.get((game_map_index + 2) % 3), game.getMapIndex() - 1);
+				game.resetSteps();
+
+				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						game.bind(game_maps.get((game_map_index + 2) % 3), game.getMapIndex() - 1);
+						return null;
+					}
+				};
+				worker.execute();
 			}
 		});
 
@@ -222,20 +232,29 @@ public class PipeManiaDemo extends JFrame {
 				cardLayout.show(GameMapPanel, game_maps_name.get(game_map_index));
 				game.changeMap(1);
 
-				lastRoundButton.setEnabled(!(game_map_index == 0));
+				lastRoundButton.setEnabled(!(game.getMapIndex() == 0));
 				nextRoundButton.setEnabled(!game.isLastMap(game.getMapIndex()));
 				checkButton.setEnabled(true);
 
 				map.init(game.getCurrentMap());
-				game.bind(game_maps.get((game_map_index + 1) % 3), game.getMapIndex() + 1);
+				game.resetSteps();
+
+				SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+					@Override
+					protected Void doInBackground() throws Exception {
+						game.bind(game_maps.get((game_map_index + 1) % 3), game.getMapIndex() + 1);
+						return null;
+					}
+				};
+				worker.execute();
 			}
 		});
 
 		game_map_index = 0;
 		map.init(game.getCurrentMap());
-		game.bind(GameMap1, 0);
-		game.bind(GameMap2, 1);
 		game.bind(GameMap3, 2);
+		game.bind(GameMap2, 1);
+		game.bind(GameMap1, 0);
 		lastRoundButton.setEnabled(!(game_map_index == 0));
 		nextRoundButton.setEnabled(!game.isLastMap(game_map_index));
 	}
