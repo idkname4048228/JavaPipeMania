@@ -26,9 +26,11 @@ public class PipeManiaDemo extends JFrame implements Observer {
 	Game game = null;
 	GameMap map = null;
 	ArrayList<JPanel> game_maps = null;
+	ArrayList<String> game_maps_name = null;
 	JButton lastRoundButton = null;
 	JButton nextRoundButton = null;
 	JLabel stepsLabel = null;
+	JButton checkButton = null;
 
 	/**
 	 * Launch the application.
@@ -53,9 +55,9 @@ public class PipeManiaDemo extends JFrame implements Observer {
 	public PipeManiaDemo() {
 		this.game = new Game();
 		game.addObserver(this);
-		GameMap map = new GameMap(game.getCurrentMap());
-		ArrayList<JPanel> game_maps = new ArrayList<>();
-		ArrayList<String> game_maps_name = new ArrayList<>();
+		this.map = new GameMap(game.getCurrentMap());
+		this.game_maps = new ArrayList<>();
+		this.game_maps_name = new ArrayList<>();
 
 		setTitle("PipeMania");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -138,7 +140,7 @@ public class PipeManiaDemo extends JFrame implements Observer {
 		stepsTip.setBounds(10, 150, 304, 50);
 		OperatePanel.add(stepsTip);
 
-		JButton checkButton = new JButton("確認");
+		checkButton = new JButton("確認");
 		checkButton.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		checkButton.setBounds(10, 370, 150, 70);
 		OperatePanel.add(checkButton);
@@ -148,7 +150,7 @@ public class PipeManiaDemo extends JFrame implements Observer {
 		restrartButton.setBounds(164, 370, 150, 70);
 		OperatePanel.add(restrartButton);
 
-		stepsLabel = new JLabel("--/--");
+		stepsLabel = new JLabel("--/100");
 		stepsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		stepsLabel.setFont(new Font("微軟正黑體", Font.BOLD, 24));
 		stepsLabel.setBounds(10, 180, 304, 50);
@@ -283,6 +285,8 @@ public class PipeManiaDemo extends JFrame implements Observer {
 		stepsLabel.setText(step + "/" + 100);
 		if (game.playerLose) {
 			JOptionPane.showMessageDialog(null, "你失敗了");
+			checkButton.setEnabled(false);
+			game.setRotate(game_maps.get(game_map_index), false);
 		}
 	}
 

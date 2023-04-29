@@ -1,4 +1,5 @@
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
@@ -110,6 +111,7 @@ public class Game extends Observable {
 	}
 
 	void resetSteps() {
+		playerLose = false;
 		currentSteps = 0;
 		setChanged();
 		notifyObservers(currentSteps);
@@ -164,7 +166,6 @@ public class Game extends Observable {
 
 	boolean check(JPanel gameMapPanel) {
 
-		final boolean[] noWasteWater = { true }; // 使用陣列將 noWasteWater 變成 effectively final 變數
 		GameMap map = gameMaps.get(nowMapIndex);
 
 		final int colMax = map.getWidth();
@@ -183,6 +184,7 @@ public class Game extends Observable {
 
 		final ArrayList<int[]> waterPipes = new ArrayList<>(map.getStartPipe()); // 使用 ArrayList 初始化 waterPipes 變數
 		final ArrayList<int[]> endPipes = map.getEndPipe();
+		final boolean[] noWasteWater = { true }; // 使用陣列將 noWasteWater 變成 effectively final 變數
 
 		Timer timer = null;
 		CountDownLatch latch = new CountDownLatch(1);
@@ -207,19 +209,26 @@ public class Game extends Observable {
 							if (pipeCol - 1 >= 0 && map.canFlowDirections(pipeRow, pipeCol - 1)[1]
 									&& !waterMap.get(pipeRow).get(pipeCol - 1)) {
 								tmpPipe.add(new int[] { pipeRow, pipeCol - 1 });
+								stillFlow = false;
 							}
 
 							if (pipeCol + 1 < colMax && map.canFlowDirections(pipeRow, pipeCol + 1)[3]
-									&& !waterMap.get(pipeRow).get(pipeCol + 1))
+									&& !waterMap.get(pipeRow).get(pipeCol + 1)) {
 								tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
+								stillFlow = false;
+							}
 						}
 						if (map.getUnitAngle(pipeRow, pipeCol) == 2 || map.getUnitAngle(pipeRow, pipeCol) == 3) {
 							if (pipeRow - 1 >= 0 && map.canFlowDirections(pipeRow - 1, pipeCol)[2]
-									&& !waterMap.get(pipeRow - 1).get(pipeCol))
+									&& !waterMap.get(pipeRow - 1).get(pipeCol)) {
 								tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
+								stillFlow = false;
+							}
 							if (pipeRow + 1 < rowMax && map.canFlowDirections(pipeRow + 1, pipeCol)[0]
-									&& !waterMap.get(pipeRow + 1).get(pipeCol))
+									&& !waterMap.get(pipeRow + 1).get(pipeCol)) {
 								tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
+								stillFlow = false;
+							}
 						}
 
 					}
@@ -239,6 +248,8 @@ public class Game extends Observable {
 								tmpPipe.add(new int[] { pipeRow - 1, pipeCol });
 								stillFlow = false;
 							}
+						} else if (waterMap.get(pipeRow - 1).get(pipeCol)) {
+							stillFlow = false;
 						}
 					}
 
@@ -256,6 +267,8 @@ public class Game extends Observable {
 								tmpPipe.add(new int[] { pipeRow, pipeCol + 1 });
 								stillFlow = false;
 							}
+						} else if (waterMap.get(pipeRow).get(pipeCol + 1)) {
+							stillFlow = false;
 						}
 					}
 
@@ -273,6 +286,8 @@ public class Game extends Observable {
 								tmpPipe.add(new int[] { pipeRow + 1, pipeCol });
 								stillFlow = false;
 							}
+						} else if (waterMap.get(pipeRow + 1).get(pipeCol)) {
+							stillFlow = false;
 						}
 					}
 
@@ -290,11 +305,16 @@ public class Game extends Observable {
 								tmpPipe.add(new int[] { pipeRow, pipeCol - 1 });
 								stillFlow = false;
 							}
+						} else if (waterMap.get(pipeRow).get(pipeCol - 1)) {
+							stillFlow = false;
 						}
 					}
 
-					if (stillFlow)
+					if (stillFlow) {
 						noWasteWater[0] = false; // 更新 noWasteWater 的值
+
+						System.out.println(pipeRow + " " + pipeCol);
+					}
 
 					controller[0] += 1;
 				}
@@ -321,6 +341,9 @@ public class Game extends Observable {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+
+		System.out.println(checkEnd(endPipes, waterMap));
+		System.out.println(noWasteWater[0]);
 
 		return checkEnd(endPipes, waterMap) && noWasteWater[0];
 
@@ -420,11 +443,14 @@ public class Game extends Observable {
 				if (nowMap.getImagePath(row, col, false) < 0) {
 					continue;
 				}
+
+				element.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
 				int nowRow = row;
 				int nowCol = col;
 
-				if ((13 <= nowMap.getImagePath(row, col, false) && nowMap.getImagePath(row, col, false) <= 16)
-						|| (4 <= nowMap.getImagePath(row, col, false) && nowMap.getImagePath(row, col, false) <= 7)) {
+				if ((nowMap.getUnitCode(nowRow, nowCol).equals("w")
+						|| nowMap.getUnitCode(nowRow, nowCol).equals("W"))) {
 					ImageIcon image = getIconByPath(pipeImagePath.get(nowMap.getImagePath(row, col, false)));
 					element.setIcon(scaledIcon(image, elementWidth, elementHeight));
 				} else {
@@ -441,6 +467,8 @@ public class Game extends Observable {
 					@SuppressWarnings("deprecation")
 					@Override
 					public void mouseClicked(MouseEvent e) {
+						if (playerLose)
+							return;
 						nowMap.setUnitAngle(nowRow, nowCol, rotateRight);
 						ImageIcon image = getIconByPath(pipeImagePath.get(nowMap.getImagePath(nowRow, nowCol, false)));
 						if (!(nowMap.getUnitCode(nowRow, nowCol).equals("w")
@@ -448,10 +476,10 @@ public class Game extends Observable {
 							image = rotateIcon(image, 90 * (nowMap.getUnitAngle(nowRow, nowCol) - 1));
 						}
 						element.setIcon(scaledIcon(image, elementWidth, elementHeight));
+						checkSteps(relativeLimit);
 						currentSteps += 1;
 						setChanged();
 						notifyObservers(currentSteps);
-						checkSteps(relativeLimit);
 					}
 				});
 			}

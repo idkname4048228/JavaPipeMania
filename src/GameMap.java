@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameMap {
 	ArrayList<ArrayList<String>> currentMap = null;
@@ -39,13 +40,19 @@ public class GameMap {
 		for (int row = 0; row < height; row++) {
 			ArrayList<String> tmp = new ArrayList<>();
 			for (int col = 0; col < width; col++) {
-				tmp.add(map.get(row).get(col));
+
 				if (map.get(row).get(col).charAt(0) == 'W') {
 					start.add(new int[] { row, col });
 				}
 				if (map.get(row).get(col).charAt(0) == 'w') {
 					end.add(new int[] { row, col });
 				}
+
+				if (map.get(row).get(col).charAt(1) == '5') {
+					int randAngle = new Random().nextInt(4) + 1;
+					tmp.add(map.get(row).get(col).substring(0, 1) + Integer.toString(randAngle));
+				} else
+					tmp.add(map.get(row).get(col));
 			}
 			currentMap.add(tmp);
 		}
