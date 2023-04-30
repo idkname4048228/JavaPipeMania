@@ -63,7 +63,7 @@ public class Game extends Observable {
 	}
 
 	protected ArrayList<ArrayList<ArrayList<String>>> readMapFile() {// 讀地圖檔，並把他們都放到 mapStorage 裡面
-		File f = new File("./src/GameMapTxtFiles/map.txt");
+		File f = new File("./GameMapTxtFiles/map.txt");
 		Scanner sc = null;
 		ArrayList<String> tmpArray = new ArrayList<String>();
 		ArrayList<ArrayList<ArrayList<String>>> returnList = new ArrayList<>();
