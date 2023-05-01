@@ -27,7 +27,7 @@ public class PipeManiaDemo extends JFrame implements Observer {
 	GameMap map = null; // 當前的遊戲地圖
 	ArrayList<JPanel> game_maps = null; // 遊戲畫面渲染所需的面板
 	ArrayList<String> game_maps_name = null; // 存放面板名字的 ArrayList
-	// 意下四個是預先定義的原件，在 constructor 之外的地方會用到
+	// 以下四個是預先定義的原件，在 constructor 之外的地方會用到
 	JButton lastRoundButton = null;
 	JButton nextRoundButton = null;
 	JLabel stepsLabel = null;
@@ -55,13 +55,15 @@ public class PipeManiaDemo extends JFrame implements Observer {
 	 */
 	public PipeManiaDemo() {
 		this.game = new Game();// 初始化遊戲
-		game.addObserver(this); // 把現在的 method電城觀察者，去監聽 game 內的變數 notify
-		this.map = new GameMap(game.getCurrentMap()); // 把遊戲內的現在的地圖取出來，放進遊戲地圖的建構子，進行遊戲地圖的初始化
+		game.addObserver(this); // 把現在的 method變成觀察者，去監聽 game 內的變數 notify
+		this.map = new GameMap(game.getCurrentMap()); // 把遊戲內的現在的地圖取出來
+														// 放進遊戲地圖的建構子，進行遊戲地圖的初始化
 		this.game_maps = new ArrayList<>();// 初始化放面板的 ArrayList
 		this.game_maps_name = new ArrayList<>(); // 初始化放面板名字的 ArrayList
 
 		// 視窗主畫面的一些設定
 		setTitle("PipeMania");
+		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(500, 200, 1000, 600);
 		contentPane = new JPanel();
@@ -223,7 +225,8 @@ public class PipeManiaDemo extends JFrame implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				map.init(game.getCurrentMap());// map 重新載入當前地圖
-				game.bind(game_maps.get(game_map_index), game.getMapIndex(), 100); // game 重新顯示畫面
+				// game 重新顯示畫面
+				game.bind(game_maps.get(game_map_index), game.getMapIndex(), 100);
 				// 以下是對 game 內的 attribute 做初始化
 				checkButton.setEnabled(true);
 				game.setRotate(game_maps.get(game_map_index), true);

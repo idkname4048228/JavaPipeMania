@@ -134,7 +134,7 @@ public class Game extends Observable {
 	}
 
 	void changeMap(int change) {// 更新地圖文字檔，參數是正負一，代表往上一個或往後一個
-		// 更伈索引，並通過計算防止超出邊界
+		// 更新索引，並通過計算防止超出邊界
 		nowMapIndex += change;
 		nowMapIndex += mapStorage.size();
 		nowMapIndex %= mapStorage.size();
@@ -145,7 +145,8 @@ public class Game extends Observable {
 		return nowMapIndex;
 	}
 
-	boolean checkEnd(ArrayList<int[]> endPipes, ArrayList<ArrayList<Boolean>> waterMap) {// 檢查是否終點都有水，第一個參數是終點的座標，第二個是有水的水管的二維地圖
+	// 檢查是否終點都有水，第一個參數是終點的座標，第二個是有水的水管的二維地圖
+	boolean checkEnd(ArrayList<int[]> endPipes, ArrayList<ArrayList<Boolean>> waterMap) {
 		boolean win = true;// 預設是全都有水，也就是獲勝的條件
 		for (int i = 0; i < endPipes.size(); i++) {
 			int pipeRow = endPipes.get(i)[0];
@@ -392,7 +393,8 @@ public class Game extends Observable {
 		if (component instanceof JLabel) {
 			JLabel element = (JLabel) component;
 			ImageIcon image = getIconByPath(pipeImagePath.get(map.getImagePath(pipeRow, pipeCol, true)));
-			if (!(map.getUnitCode(pipeRow, pipeCol).equals("w") || map.getUnitCode(pipeRow, pipeCol).equals("W"))) {// 如果他不是水庫
+			if (!(map.getUnitCode(pipeRow, pipeCol).equals("w")
+				 || map.getUnitCode(pipeRow, pipeCol).equals("W"))) {// 如果他不是水庫
 				image = rotateIcon(image, 90 * (map.getUnitAngle(pipeRow, pipeCol) - 1));// 旋轉圖片
 			}
 			element.setDisabledIcon(scaledIcon(image, elementWidth, elementHeight));// 設定圖片

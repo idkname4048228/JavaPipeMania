@@ -27,7 +27,7 @@ public class GameMap {
 		height = map.size();// 取得高度
 		this.start = new ArrayList<>();// 初始化起點
 		this.end = new ArrayList<>();// 初始化終點
-		this.currentMap = new ArrayList<>();// 初始化先地圖
+		this.currentMap = new ArrayList<>();// 初始化當前地圖
 
 		// 把參數的二維矩陣複製一份，並把起點及終點的座標儲存起來
 		for (int row = 0; row < height; row++) {
